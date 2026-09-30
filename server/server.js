@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 
 const app=express();
 const projectRoot=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const allowedOrigins=(process.env.CLIENT_ORIGIN||'http://localhost:5173,http://127.0.0.1:5173').split(',').map(value=>value.trim()).filter(Boolean);
+const allowedOrigins=[...(process.env.CLIENT_ORIGIN||'http://localhost:5173,http://127.0.0.1:5173').split(','),process.env.RENDER_EXTERNAL_URL].map(value=>value?.trim()).filter(Boolean);
 app.use(cors({origin(origin,callback){if(!origin||allowedOrigins.includes(origin))return callback(null,true);return callback(new Error('Origin not allowed'));}}));app.use(express.json({limit:'32kb'}));
 const UserSchema=new mongoose.Schema({name:{type:String,required:true,trim:true,maxLength:80},email:{type:String,required:true,unique:true,lowercase:true,trim:true},password:{type:String,required:true,select:false},favorites:[String],playlists:[{name:String,songs:[String],createdAt:{type:Date,default:Date.now}}],settings:{moodHistory:{type:Boolean,default:false},autoplay:{type:Boolean,default:true}},history:[{songId:String,detectedMood:String,playedAt:Date}]},{timestamps:true});
 const User=mongoose.models.User||mongoose.model('User',UserSchema);
